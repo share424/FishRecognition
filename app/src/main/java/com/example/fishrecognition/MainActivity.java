@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
         if(condition) {
             return "Ikan segar yang memiliki banyak manfaat";
         } else {
-            return "Ikan tidak segar yang kurang manfaat";
+            return "Ikan tidak segar yang kurang bermanfaat";
         }
     }
 }

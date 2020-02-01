@@ -1,107 +1,118 @@
 package com.example.fishrecognition;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.esafirm.imagepicker.features.ImagePicker;
+import com.esafirm.imagepicker.model.Image;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
+
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.List;
 import java.util.Random;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int CAMERA_REQUEST_CODE = 7777;
-    private ImageView imageView;
-    private static final int CAMERA_PERMISSION_CODE = 100;
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    @BindView(R.id.display_image_iv) ImageView imageView;
+    @BindView(R.id.condition_tv) TextView condition;
+    @BindView(R.id.valid_time_tv) TextView validTime;
+    @BindView(R.id.price) TextView price;
+    @BindView(R.id.description) TextView description;
+
     Random rand = new Random();
-    TextView condition, validTime;
+
+    @OnClick(R.id.take_photo_btn) void onTakePhoto() {
+        //check permission dulu coy
+        Dexter.withActivity(MainActivity.this)
+                .withPermission(Manifest.permission.CAMERA)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        ImagePicker.cameraOnly().start(MainActivity.this);
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        Toast.makeText(MainActivity.this, "Please grant camera permission", Toast.LENGTH_LONG).show();
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {/* ... */}
+                }).check();
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        this.imageView = (ImageView)this.findViewById(R.id.display_image_iv);
-        Button takePhotoButton = (Button)this.findViewById(R.id.take_photo_btn);
-        condition = (TextView)this.findViewById(R.id.condition_tv);
-        validTime = (TextView)this.findViewById(R.id.valid_time_tv);
-
-        takePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View v) {
-                //intent khusus untuk menangkap foto lewat kamera
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent, CAMERA_REQUEST_CODE);
-            }
-        });
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "camera permission granted", Toast.LENGTH_LONG).show();
-                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-            } else {
-                Toast.makeText(this, "camera permission denied", Toast.LENGTH_LONG).show();
-            }
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        switch (requestCode) {
-            case(CAMERA_REQUEST_CODE) :
-                if(resultCode == Activity.RESULT_OK)
-                {
-                    // result code sama, save gambar ke bitmap
-                    Bitmap bitmap;
-                    bitmap = (Bitmap) data.getExtras().get("data");
-                    imageView.setImageBitmap(bitmap);
-
-
-                    condition.setText(this.generateCondition());
-                    validTime.setText(this.generateValidateTime());
-                }
-                break;
+        if (ImagePicker.shouldHandle(requestCode, resultCode, data)) {
+            // Get a list of picked images
+            List<Image> images = ImagePicker.getImages(data);
+            // or get a single image only
+            Image image = ImagePicker.getFirstImageOrNull(data);
+            Glide.with(this).load(image.getPath()).into(imageView);
+            boolean cond = generateCondition();
+            condition.setText(cond ? "Segar" : "Tidak Segar");
+            int valid = generateValidateTime(cond);
+            validTime.setText(valid + " Hari");
+            price.setText(generatePrice(cond, valid));
+            description.setText(generateDescription(cond));
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public String generateCondition() {
-        String[] condition = {"Segar", "Tidak segar"};
-
-        int conditionLength = condition.length;
-
-        int selectedIndex = rand.nextInt(conditionLength);
-
-        return condition[selectedIndex];
+    public boolean generateCondition() {
+        int selectedIndex = rand.nextInt(2);
+        return selectedIndex == 1;
     }
 
-    public String generateValidateTime() {
-        int conditionLenght = rand.nextInt(7);
+    public int generateValidateTime(boolean condition) {
+        int conditionLenght = 1 + rand.nextInt(condition ? 7 : 3);
+        return conditionLenght;
+    }
 
-        return conditionLenght + " hari";
+    public String generatePrice(boolean condition, int valid) {
+        int startPrice = 20;
+        if(condition) {
+            valid *= 2;
+            startPrice += valid;
+        }
+        int price = (startPrice + rand.nextInt(startPrice * 2)) * 500;
+        NumberFormat format = NumberFormat.getCurrencyInstance();
+        format.setMaximumFractionDigits(0);
+        format.setCurrency(Currency.getInstance("IDR"));
+        return format.format(price);
+    }
+
+    public String generateDescription(boolean condition) {
+        if(condition) {
+            return "Ikan segar yang memiliki banyak manfaat";
+        } else {
+            return "Ikan tidak segar yang kurang manfaat";
+        }
     }
 }

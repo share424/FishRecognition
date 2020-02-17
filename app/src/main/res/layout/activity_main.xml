@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:background="#F5F5F6">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,23 +16,25 @@
         <ImageView
             android:id="@+id/display_image_iv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="800px"
             android:src="@drawable/no_image"/>
 
         <LinearLayout
-            android:layout_marginTop="40px"
+            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <TextView
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:text="Kondisi:" />
+                android:text="Kondisi:"
+                android:textColor="#000000"/>
             <TextView
                 android:id="@+id/condition_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="" />
+                android:text=""
+                android:textColor="#000"/>
         </LinearLayout>
 
         <LinearLayout
@@ -41,12 +44,14 @@
             <TextView
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:text="Waktu berlaku:" />
+                android:text="Waktu berlaku:"
+                android:textColor="#000"/>
             <TextView
                 android:id="@+id/valid_time_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""/>
+                android:text=""
+                android:textColor="#000"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -55,12 +60,14 @@
             <TextView
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:text="Harga Pasaran:" />
+                android:text="Harga Pasaran:"
+                android:textColor="#000"/>
             <TextView
                 android:id="@+id/price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""/>
+                android:text=""
+                android:textColor="#000"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -69,12 +76,46 @@
             <TextView
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:text="Deskripsi:" />
+                android:text="Jenis Ikan:"
+                android:textColor="#000"/>
+            <TextView
+                android:id="@+id/fish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#000"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Confident:"
+                android:textColor="#000"/>
+            <TextView
+                android:id="@+id/confident"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="#000"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Deskripsi:"
+                android:textColor="#000"/>
             <TextView
                 android:id="@+id/description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=""/>
+                android:text=""
+                android:textColor="#000"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -85,7 +126,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:text="Photo"
+        android:text="Ambil Gambar"
+        android:background="#f5a62e"
+        android:textColor="#ffffff"
         android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
